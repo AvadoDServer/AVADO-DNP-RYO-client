@@ -1,0 +1,28 @@
+{
+  "name": "acloud-client.avado.dnp.dappnode.eth",
+  "version": "0.0.3",
+  "description": "AVADO A-cloud client",
+  "avatar": "QmYRpsWZ2RreauRqr7LBgFW7kEQv6TvV1sbnvEa5hkKjdM",
+  "type": "",
+  "image": {
+    "volumes": [
+      "acloud_data:/data/acloud"
+    ],
+    "environment": [
+      "ACLOUD_ENDPOINT=https://acloud.ava.do"
+    ],
+    "ports": [
+      "9993:9993/udp"
+    ],
+    "restart": "always",
+    "privileged": "true",
+    "path": "acloud-client.avado.dnp.dappnode.eth_0.0.3.tar.xz",
+    "hash": "/ipfs/Qmf4hR6siTiz8kJsiekxopjhzqMYmSTGCUzk58ejwdcsY2",
+    "size": 90693585
+  },
+  "author": "sponnet",
+  "license": "",
+  "links": {
+    "OnboardingWizard": "http://my.acloud-client.avado.dnp.dappnode.eth:81"
+  }
+}
