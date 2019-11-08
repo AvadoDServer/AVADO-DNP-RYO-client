@@ -1,5 +1,5 @@
 FROM node:10.15.3 as build-deps-wizard
-#RUN apt-get update && apt-get install -y openssl
+RUN apt-get update && apt-get install -y jq
 
 # Generate SSL certificates
 # WORKDIR /usr/src/cert
@@ -12,12 +12,14 @@ FROM node:10.15.3 as build-deps-wizard
 
 # build wizard
 WORKDIR /usr/src/app
-COPY wizard .
+COPY build/wizard .
+ADD dappnode_package.json .
+RUN ./getVersionData.sh
 RUN yarn add react-scripts
-RUN yarn run build
+RUN rm -Rf build && yarn run build
 
 WORKDIR /usr/src/dcloudmonitor
-COPY dcloudmonitor .
+COPY build/dcloudmonitor .
 RUN npm i
 
 # RUN curl -L -o /tmp/zerotier-install.sh https://install.zerotier.com/ && bash /tmp/zerotier-install.sh || exit 0
@@ -42,12 +44,12 @@ RUN apt-get update && apt-get install nodejs
 
 # COPY --from=build-deps-wizard /usr/sbin/zerotier-one /usr/sbin/zerotier-one 
 
-COPY files/supervisord.conf /etc/supervisord.conf
-COPY files/start.sh /opt/start.sh
+COPY build/files/supervisord.conf /etc/supervisord.conf
+COPY build/files/start.sh /opt/start.sh
 RUN chmod 755 /opt/start.sh
 
 # copy files for wizard
-COPY files/nginx.conf /etc/nginx/nginx.conf
+COPY build/files/nginx.conf /etc/nginx/nginx.conf
 COPY --from=build-deps-wizard /usr/src/app/build /usr/www/wizard
 # COPY --from=build-deps-wizard /usr/src/cert/server.crt /etc/nginx/cert.crt
 # COPY --from=build-deps-wizard /usr/src/cert/server.key /etc/nginx/cert.key
@@ -55,6 +57,6 @@ COPY --from=build-deps-wizard /usr/src/app/build /usr/www/wizard
 COPY --from=build-deps-wizard /usr/src/dcloudmonitor /usr/dcloudmonitor
 
 # haproxy
-COPY files/haproxy.cfg /etc/haproxy/haproxy.cfg
+COPY build/files/haproxy.cfg /etc/haproxy/haproxy.cfg
 
 ENTRYPOINT "/opt/start.sh"

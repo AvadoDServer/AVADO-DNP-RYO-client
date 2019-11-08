@@ -30,35 +30,33 @@ const configtoHAProxyConf = config => {
         `\
 global\n\
 defaults\n\
-timeout client          30s\n\
-timeout server          30s\n\
-timeout connect         30s\n\
+timeout client          300s\n\
+timeout server          300s\n\
+timeout connect         300s\n\
 \n
 
-stats enable\n
-stats hide-version\n
-stats refresh 30s\n
-stats show-node\n
-stats auth admin:password\n
-stats uri  /haproxy?stats\n
-\n
 ` +
 
         config.reduce((accum, item, i) => {
             const key = `service_${item.hostname.replace(/\./g, "_").replace(/\-/g, "_")}${i}`;
 
-            const line = `\
-frontend ${key} \n\
-bind    0.0.0.0:${item.ports[0]} \n\
-default_backend ${key}_backend \n\
-\n\
-backend ${key}_backend \n\
-mode    tcp \n\
-server upstream ${item.hostname}:${item.ports[0]} \n\
-\n\
-`;
+            for(let p=0;p<item.ports.length;p++){
 
-            accum += line;
+                const line = `\
+                frontend ${key} \n\
+                bind    0.0.0.0:${item.frontendports ? item.frontendports[p] : item.ports[p]} \n\
+                default_backend ${key}_backend \n\
+                \n\
+                backend ${key}_backend \n\
+                mode    tcp \n\
+                server upstream ${item.hostname}:${item.ports[p]} \n\
+                \n\
+                `;
+                
+                accum += line;                
+
+            }
+
 
             return accum;
 
@@ -84,7 +82,7 @@ const parse = path => {
             console.log("received new config");
             console.log(JSON.stringify(config, 0, 2));
 
-            const haProxyConfigString = configtoHAProxyConf(config);
+            const haProxyConfigString = configtoHAProxyConf(config.sharedservices);
 
             console.log("Created new HAProxy config");
             console.log("-------------------<<<--------------------");
@@ -258,7 +256,7 @@ server.get("/status", function (req, res, next) {
             lastPing: lastPing,
             // receivedconfig: fs.existsSync(configFilePath),
             registration: lastConfig,
-            haproxyconfig: configtoHAProxyConf(lastConfig.config)
+            haproxyconfig: (lastConfig && lastConfig.config && lastConfig.config.sharedservices) ? configtoHAProxyConf(lastConfig.config.sharedservices) : null
         });
     });
 });

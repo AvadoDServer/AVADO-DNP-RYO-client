@@ -1,16 +1,20 @@
 version: '3.4'
 volumes:
   zerotier_data: {}
+  acloud_data: {}
 services:
   acloud-client.avado.dnp.dappnode.eth:
+    build:
+      context: .
+      dockerfile: ./build/Dockerfile  
     container_name: "acloud-client.avado.dnp.dappnode.eth"
-    image: "acloud-client.avado.dnp.dappnode.eth:0.0.3"
-    build: ./build
+    image: "acloud-client.avado.dnp.dappnode.eth:0.0.6"
     network_mode: host
     privileged: true
     dns: 172.33.1.2
-    # env_file:
-    #   - acloud-client.avado.dnp.dappnode.eth.env
+    ports:
+      - "1936:1936"
     volumes:
-      - 'zerotier_data:/data/zerotier'      
+      - 'zerotier_data:/data/zerotier'
+      - 'acloud_data:/data/acloud'
     restart: always
