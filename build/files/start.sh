@@ -10,33 +10,25 @@ echo "Starting ZeroTier daemon"
 
 ls -lR /dev/net/tun
 
-#/usr/sbin/zerotier-one &
-
 #zerotier-one
 supervisord -c /etc/supervisord.conf
 
-# echo "Joining network $NETWORK_ID"
+FILE=/zt-data/authtoken.secret
+while [ ! -f $FILE ]
+do
+    echo "waiting for zeroTier to start up ($FILE)"
+ 
+    sleep 2
+done
 
-# [ ! -z $NETWORK_ID ] && { sleep 5; zerotier-cli join $NETWORK_ID || exit 1; }
+cp $FILE /zt-data/authtoken.secret_
+chmod 644 /zt-data/authtoken.secret_
 
-# waiting for Zerotier IP
-# why 2? because you have an ipv6 and an a ipv4 address by default if everything is ok
-# ZTIP=""
-# while [ -z "$ZTIP" ]
-# do
-#   ZTDEV=$( ip addr | grep -i zt | grep -i mtu | awk '{ print $2 }' | cut -f1 -d':' )
-#   ZTIP=$( ip -4 addr show $ZTDEV | grep -oP '(?<=inet\s)\d+(\.\d+){3}' )
-#   if [ -z "$ZTIP" ]
-#   then
-#       echo "Waiting for a ZeroTier IP on $ZTDEV interface... "
-#       sleep 5
-#   fi
-# done
-# echo "OK - your your ZeroTier IP is: $ZTIP"
+ls -l /zt-data
 
 mkdir -p /data/acloud/config
 
-node /usr/dcloudmonitor/index.js "/data/acloud/config" /etc/haproxy/newconfig &
+node /usr/dcloudmonitor/index.js "/data/acloud/config" /etc/haproxy/newconfig /zt-data/authtoken.secret_ &
 
 while :
 do

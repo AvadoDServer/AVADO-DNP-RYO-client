@@ -4,18 +4,29 @@ const axios = require('axios');
 const path = require("path");
 const restify = require("restify");
 const corsMiddleware = require("restify-cors-middleware");
+const Service = require('zerotier-service');
 
 // configFilePath should be the full filename
 const configFilePath = process.argv[2];
 const newHAProxyConfigFile = process.argv[3];
+const authTokenFilePath = process.argv[4];
 
+const taskIpfsPinner = require('./task-ipfs-pinner');
 
 let keepaliveTimer;
 let lastPing;
-// let receivedConfig;
 let lastConfig;
 
 const endpoint = process.env.ACLOUD_ENDPOINT || "http://localhost:5003";
+
+// Get ZT auth token to create & manage networks
+const authToken = fs.readFileSync(authTokenFilePath, 'utf8');
+
+// ZT controller manages creating networks & managing members
+// const controller = new Controller({ authToken });
+
+// ZT service manages network connections
+const service = new Service({ authToken });
 
 if (!configFilePath || !newHAProxyConfigFile) {
     console.log("please provide");
@@ -36,12 +47,9 @@ timeout connect         300s\n\
 \n
 
 ` +
-
         config.reduce((accum, item, i) => {
             const key = `service_${item.hostname.replace(/\./g, "_").replace(/\-/g, "_")}${i}`;
-
-            for(let p=0;p<item.ports.length;p++){
-
+            for (let p = 0; p < item.ports.length; p++) {
                 const line = `\
                 frontend ${key} \n\
                 bind    0.0.0.0:${item.frontendports ? item.frontendports[p] : item.ports[p]} \n\
@@ -52,18 +60,11 @@ timeout connect         300s\n\
                 server upstream ${item.hostname}:${item.ports[p]} \n\
                 \n\
                 `;
-                
-                accum += line;                
-
+                accum += line;
             }
-
-
             return accum;
-
         }, "");
-
     return configStr;
-
 }
 
 // parses new config file and posts presence to acloud LB
@@ -74,9 +75,6 @@ const parse = path => {
             console.log("Error reading file from disk:", err)
             return
         }
-        // console.log("cleaning up file");
-        // fs.unlinkSync(path);
-
         try {
             const config = JSON.parse(jsonString);
             console.log("received new config");
@@ -98,6 +96,18 @@ const parse = path => {
                 console.log(haProxyConfigString)
             });
             postConfig(config);
+
+            const pinnerEnabled = config.sharedservices.find((s)=>{return s.key === "ipfs_pinner"})
+
+            if (pinnerEnabled){
+                console.log("pinning scheduler: enabled")
+                taskIpfsPinner.start();
+            }else{
+                console.log("pinning scheduler: disabled")
+                taskIpfsPinner.stop();
+            }
+
+
             // receivedConfig = true;
         } catch (err) {
             console.log('Error parsing JSON string:', err, jsonString);
@@ -107,36 +117,30 @@ const parse = path => {
 
 // get the local address of this ZT node
 const ztGetAddress = () => {
-    return new Promise((resolve, reject) => {
-        var exec = require('child_process').exec;
-        function execute(command, callback) {
-            exec(command, function (error, stdout, stderr) { callback(stdout); });
-        };
-        execute("zerotier-cli -j status", function (name) {
-            try {
-                const address = JSON.parse(name).address;
-                return resolve(address);
-            } catch (e) {
-                return reject();
+    return new Promise(async (resolve, reject) => {
+        console.log("ztGetAddress");
+        try {
+            const res = await service.status();
+            if (!res.body || !res.body.address) {
+                return resolve("");
+            } else {
+                return resolve(res.body.address);
             }
-        });
+        } catch (e) {
+            return reject(e);
+        }
     });
 }
 
 const ztGetNetworks = () => {
-    return new Promise((resolve, reject) => {
-        var exec = require('child_process').exec;
-        function execute(command, callback) {
-            exec(command, function (error, stdout, stderr) { callback(stdout); });
-        };
-        execute("zerotier-cli -j listnetworks", function (output) {
-            try {
-                const out = JSON.parse(output);
-                return resolve(out);
-            } catch (e) {
-                return reject();
-            }
-        });
+    return new Promise(async (resolve, reject) => {
+        console.log("ztGetNetworks");
+        try {
+            const res = await service.networks();
+            return resolve(res.body);
+        } catch (e) {
+            return reject(e);
+        }
     });
 }
 
@@ -144,22 +148,11 @@ const ztGetNetworks = () => {
 // join a ZT network
 const ztJoinNetwork = (networkid) => {
     return new Promise((resolve, reject) => {
-        var exec = require('child_process').exec;
-        function execute(command, callback) {
-            exec(command, function (error, stdout, stderr) { callback(stdout); });
-        };
-
-        execute(`zerotier-cli join ${networkid}`, function (name) {
-            console.log(`name ---${name}---`);
-            if (name.length < 3) return reject("ztJoinNetwork error " + name);
-            const parts = name.split(" ");
-            if (parts.length < 2) return reject("ztJoinNetwork error " + name);
-            if (parts[0] === "200") {
-                resolve();
-            } else {
-                console.log("ztJoinNetwork error", name);
-                reject();
+        service.join(networkid, (e) => {
+            if (e) {
+                return reject(e);
             }
+            return resolve();
         });
     });
 }
@@ -241,12 +234,22 @@ const cors = corsMiddleware({
     origins: [
         /^http:\/\/localhost(:[\d]+)?$/,
         "http://*.dappnode.eth:81",
-        "http://my.acloud-client.avado.dnp.dappnode.eth:81"
+        "http://my.ryo-client.avado.dnp.dappnode.eth:81"
     ]
 });
 
 server.pre(cors.preflight);
 server.use(cors.actual);
+
+
+server.get("/pool", function (req, res, next) {
+    axios.get(`${endpoint}/acloud/pool`)
+    .then((r) => {
+        res.send(200,r.data)
+    }).catch((e) => {
+        res.send(500,e.message);
+    });
+})
 
 server.get("/status", function (req, res, next) {
     Promise.all([ztGetNetworks(), ztGetAddress()]).then(([networks, address]) => {
@@ -254,10 +257,11 @@ server.get("/status", function (req, res, next) {
             networks: networks,
             address: address,
             lastPing: lastPing,
-            // receivedconfig: fs.existsSync(configFilePath),
             registration: lastConfig,
             haproxyconfig: (lastConfig && lastConfig.config && lastConfig.config.sharedservices) ? configtoHAProxyConf(lastConfig.config.sharedservices) : null
         });
+    }).catch((e) => {
+        console.log("Error getting stats", e);
     });
 });
 

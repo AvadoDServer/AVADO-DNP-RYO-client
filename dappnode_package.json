@@ -1,12 +1,12 @@
 {
   "name": "ryo-client.avado.dnp.dappnode.eth",
-  "version": "0.0.6",
-  "description": "AVADO A-cloud client",
-  "avatar": "QmYRpsWZ2RreauRqr7LBgFW7kEQv6TvV1sbnvEa5hkKjdM",
+  "version": "0.0.9",
+  "description": "AVADO RYO client",
+  "avatar": "QmPDExSFA2rsaqTMcYpaxLJZvG4TM7BZzVqJoMpBEXyVQx",
   "type": "",
   "image": {
     "volumes": [
-      "zerotier_data:/data/zerotier",
+      "zt-data:/zt-data",
       "acloud_data:/data/acloud"
     ],
     "environment": [
@@ -17,9 +17,9 @@
     ],
     "restart": "always",
     "privileged": "true",
-    "path": "ryo-client.avado.dnp.dappnode.eth_0.0.6.tar.xz",
-    "hash": "/ipfs/QmQvMLVfPTwZNiFmQqmRXXycQtc4XaaPdY3deRB9XR59aA",
-    "size": 90411607
+    "path": "ryo-client.avado.dnp.dappnode.eth_0.0.9.tar.xz",
+    "hash": "/ipfs/QmUA7JVpNi8XFHcDnNxVqdBxwZxPMpdXCFGyGUJYtNiwth",
+    "size": 97612398
   },
   "author": "sponnet",
   "license": "",

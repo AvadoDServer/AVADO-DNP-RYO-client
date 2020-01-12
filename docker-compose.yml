@@ -1,6 +1,6 @@
 version: '3.4'
 volumes:
-  zerotier_data: {}
+  zt-data: {}
   acloud_data: {}
 services:
   ryo-client.avado.dnp.dappnode.eth:
@@ -8,13 +8,13 @@ services:
       context: .
       dockerfile: ./build/Dockerfile  
     container_name: "ryo-client.avado.dnp.dappnode.eth"
-    image: "ryo-client.avado.dnp.dappnode.eth:0.0.6"
+    image: "ryo-client.avado.dnp.dappnode.eth:0.0.9"
     network_mode: host
     privileged: true
     dns: 172.33.1.2
     ports:
       - "1936:1936"
     volumes:
-      - 'zerotier_data:/data/zerotier'
+      - "zt-data:/zt-data"
       - 'acloud_data:/data/acloud'
     restart: always

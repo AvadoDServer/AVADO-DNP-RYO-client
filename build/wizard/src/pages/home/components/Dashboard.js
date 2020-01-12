@@ -11,11 +11,11 @@ import spinner from "../../../assets/spinner.svg";
 
 const url = "ws://my.wamp.dnp.dappnode.eth:8080/ws";
 const realm = "dappnode_admin";
-const packageName = "acloud-client.avado.dnp.dappnode.eth";
-const dcloudmonitorAPI = "http://my.acloud-client.avado.dnp.dappnode.eth:82";
+const packageName = "ryo-client.avado.dnp.dappnode.eth";
+const dcloudmonitorAPI = "http://my.ryo-client.avado.dnp.dappnode.eth:82";
 //const dcloudmonitorAPI = "http://localhost:82";
 
-const packagewhitelist = [
+const packagewhitelist_ = [
     {
         key: "ethchain_geth",
         packagename: "ethchain-geth.public.dappnode.eth",
@@ -114,15 +114,21 @@ const Comp = () => {
                     return p[key].name;
                 });
 
-                const whiteListedPackages = packagewhitelist.reduce((accum, item, i) => {
-                    if (installedpackages.includes(item.packagename)) {
-                        accum.push(item);
+                axios.get(`${dcloudmonitorAPI}/pool`).then((res) => {
+                    if (res && res.data) {
+                        const packagewhitelist = res.data;
+                        const whiteListedPackages = packagewhitelist.reduce((accum, item, i) => {
+                            if (installedpackages.includes(item.packagename)) {
+                                accum.push(item);
+                            }
+                            return accum;
+                        }, []);
+
+
+                        setPackages(whiteListedPackages);
                     }
-                    return accum;
-                }, []);
+                });
 
-
-                setPackages(whiteListedPackages);
             })
 
         };
@@ -153,14 +159,11 @@ const Comp = () => {
 
 
     React.useEffect(() => {
-
         if (currentConfig && currentConfig.registration && currentConfig.registration.config) {
-
             const enabledServices = currentConfig.registration.config.sharedservices.reduce((accum, service) => { accum[service.key] = true; return accum; }, {})
-
             const initialValues =
             {
-                agreetandc: currentConfig.registration.config.agreetandc || false,
+                // agreetandc: currentConfig.registration.config.agreetandc || false,
                 rewardpubkey: currentConfig.registration.config.rewardpubkey || "",
                 nftpubkey: currentConfig.registration.config.nftpubkey || "",
                 publicname: currentConfig.registration.config.publicname || "",
@@ -173,7 +176,7 @@ const Comp = () => {
             if (packages) {
                 const initialValues =
                 {
-                    agreetandc: false,
+                    // agreetandc: false,
                     rewardpubkey: "",
                     nftpubkey: "",
                     ...packages.reduce((accum, item) => {
@@ -228,7 +231,7 @@ const Comp = () => {
 
     const processConfig = values => {
         return new Promise((resolve, reject) => {
-            const sharedservices = packagewhitelist.reduce((accum, item) => {
+            const sharedservices = packages ? packages.reduce((accum, item) => {
                 if (values[item.key]) {
                     accum.push({
                         hostname: item.hostname,
@@ -238,12 +241,12 @@ const Comp = () => {
                     });
                 }
                 return accum;
-            }, []);
+            }, []) : null;
 
             // send config to container
             saveConfig({
                 sharedservices: sharedservices,
-                agreetandc: values.agreetandc,
+                // agreetandc: values.agreetandc,
                 rewardpubkey: values.rewardpubkey,
                 nftpubkey: values.nftpubkey,
                 publicname: values.publicname
@@ -302,7 +305,7 @@ const Comp = () => {
 
 
     if (currentView === "view") {
-        if (currentConfig && currentConfig.registration && currentConfig.registration.config && currentConfig.registration.config && currentConfig.registration.config.agreetandc === true) {
+        if (currentConfig && currentConfig.registration && currentConfig.registration.config && currentConfig.registration.config) {
             return (
                 <>
                     <section className="is-medium has-text-white">
@@ -347,7 +350,8 @@ const Comp = () => {
                                                     </>
                                                 )}
                                                 <h4 className="title is-4 has-text-white">Services you are sharing in this network</h4>
-                                                {packagewhitelist.map((service, i) => {
+
+                                                {packages && packages.map((service, i) => {
                                                     const active = currentConfig.registration.config.sharedservices.find((configItem) => {
                                                         return configItem.key === service.key
                                                     })
@@ -355,7 +359,7 @@ const Comp = () => {
                                                         return (<span key={i}></span>);
                                                     }
                                                     return (
-                                                        <div key={i}>{service.name} on port {service.ports.map((p) => { return (p) })}</div>
+                                                        <div key={i}>{service.name} {service.ports && service.ports.length > 0 && (<>on port {service.ports.map((p) => { return (p) })}</>)}</div>
                                                     );
                                                 })}
 
@@ -411,9 +415,9 @@ const Comp = () => {
                         // console.log("values", values);
 
                         let errors = {};
-                        if (values.agreetandc !== true) {
-                            errors["agreetandc"] = "You must agree to the the terms and conditions";
-                        }
+                        // if (values.agreetandc !== true) {
+                        //     errors["agreetandc"] = "You must agree to the the terms and conditions";
+                        // }
 
                         if (!values.rewardpubkey) {
                             errors["rewardpubkey"] = "This setting is required";
@@ -424,14 +428,14 @@ const Comp = () => {
                             }
                         }
 
-                        if (!values.nftpubkey) {
-                            errors["nftpubkey"] = "This setting is required";
-                        } else {
-                            const regex = RegExp('^0x[a-fA-F0-9]{40}$');
-                            if (!regex.test(values.nftpubkey)) {
-                                errors["nftpubkey"] = "This pubkey is invalid";
-                            }
-                        }
+                        // if (!values.nftpubkey) {
+                        //     errors["nftpubkey"] = "This setting is required";
+                        // } else {
+                        //     const regex = RegExp('^0x[a-fA-F0-9]{40}$');
+                        //     if (!regex.test(values.nftpubkey)) {
+                        //         errors["nftpubkey"] = "This pubkey is invalid";
+                        //     }
+                        // }
 
                         return errors;
                     }}
@@ -574,7 +578,7 @@ const Comp = () => {
                                                         </div>
 
 
-                                                        <div className="setting">
+                                                        {/* <div className="setting">
                                                             <h3 className="is-size-5">Enter your AVADO NFT address</h3>
                                                             <p>Please provide the public key of the NFT card in your AVADO box to participate in the reward pool. </p>
                                                             <div className="field">
@@ -597,10 +601,10 @@ const Comp = () => {
                                                                     <p className="help is-danger">{errors.nftpubkey}</p>
                                                                 )}
                                                             </div>
-                                                        </div>
+                                                        </div> */}
 
 
-                                                        <div className="setting">
+                                                        {/* <div className="setting">
                                                             <h3 className="is-size-5">Do you agree with the <a href="https://ava.do/ryo-terms-conditions/">Terms and Conditions of the AVADO RYO-Cloud</a></h3>
                                                             <nav className="level switch_w_options">
                                                                 <div className="level-left">
@@ -625,7 +629,7 @@ const Comp = () => {
                                                                 <p className="help is-danger">{errors.agreetandc}</p>
                                                             )}
 
-                                                        </div>
+                                                        </div> */}
 
 
                                                         <div className="field is-grouped buttons">
