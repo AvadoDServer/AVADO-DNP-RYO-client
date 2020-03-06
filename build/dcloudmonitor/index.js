@@ -22,9 +22,6 @@ const endpoint = process.env.ACLOUD_ENDPOINT || "http://localhost:5003";
 // Get ZT auth token to create & manage networks
 const authToken = fs.readFileSync(authTokenFilePath, 'utf8');
 
-// ZT controller manages creating networks & managing members
-// const controller = new Controller({ authToken });
-
 // ZT service manages network connections
 const service = new Service({ authToken });
 
@@ -106,9 +103,6 @@ const parse = path => {
                 console.log("pinning scheduler: disabled")
                 taskIpfsPinner.stop();
             }
-
-
-            // receivedConfig = true;
         } catch (err) {
             console.log('Error parsing JSON string:', err, jsonString);
         }
@@ -144,7 +138,6 @@ const ztGetNetworks = () => {
     });
 }
 
-
 // join a ZT network
 const ztJoinNetwork = (networkid) => {
     return new Promise((resolve, reject) => {
@@ -175,24 +168,31 @@ const postConfig = (config) => {
                     return;
                 }
                 console.log(`joining network`, res.data);
-                ztJoinNetwork(res.data.networkid).then(() => {
-                    console.log("ok joined network...");
-                    const intervalDuration = res.data.keepaliveinterval || 1000 * 60 * 5;
-                    console.log(`keepalive interval set to ${intervalDuration}`);
-                    keepaliveTimer = setInterval(() => {
-                        console.log("announcing keepalive");
-                        axios.get(`${endpoint}/acloud/keepalive/${myZtAddress}`).then((res) => {
-                            console.log(`keepalive successful.`);
-                            lastPing = res.data;
-                        }).catch((e) => {
-                            console.log(`keepalive not successful.`, e);
-                            lastPing = null;
-                        });
-                    }, intervalDuration);
-                }).catch((e) => {
-                    // what now ?
-                    console.log("Error joining ZT network", e);
+                ztGetNetworks().then((networks)=>{
+                    if (networks && networks.length>0){
+
+                    }else{
+                    ztJoinNetwork(res.data.networkid).then(() => {
+                        console.log("ok joined network...");
+                        const intervalDuration = res.data.keepaliveinterval || 1000 * 60 * 5;
+                        console.log(`keepalive interval set to ${intervalDuration}`);
+                        keepaliveTimer = setInterval(() => {
+                            console.log("announcing keepalive");
+                            axios.get(`${endpoint}/acloud/keepalive/${myZtAddress}`).then((res) => {
+                                console.log(`keepalive successful.`);
+                                lastPing = res.data;
+                            }).catch((e) => {
+                                console.log(`keepalive not successful.`, e);
+                                lastPing = null;
+                            });
+                        }, intervalDuration);
+                    }).catch((e) => {
+                        // what now ?
+                        console.log("Error joining ZT network", e);
+                    });
+                }
                 });
+               
                 // console.log(res);
             }).catch((e) => {
                 console.log("Authentication failed or network error", e);

@@ -1,8 +1,5 @@
 import React from "react";
-// import { Redirect } from "react-router-dom";
-// import styled from "styled-components";
 import autobahn from "autobahn-browser";
-import QrReader from 'react-qr-reader'
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { listPackages } from "../../../util/avado";
 import classNames from "classnames";
@@ -13,78 +10,6 @@ const url = "ws://my.wamp.dnp.dappnode.eth:8080/ws";
 const realm = "dappnode_admin";
 const packageName = "ryo-client.avado.dnp.dappnode.eth";
 const dcloudmonitorAPI = "http://my.ryo-client.avado.dnp.dappnode.eth:82";
-//const dcloudmonitorAPI = "http://localhost:82";
-
-const packagewhitelist_ = [
-    {
-        key: "ethchain_geth",
-        packagename: "ethchain-geth.public.dappnode.eth",
-        name: "My Ethereum node (geth based)",
-        hostname: "my.ethchain-geth.public.dappnode.eth",
-        ports: [8545],
-        description: "You will share the Ethereum RPC endpoint of your AVADO node for others to use. Your node will serve as an endpoint to add transactions to the blockchain - or query blockchain data"
-    },
-    {
-        key: "ethchain_geth_ws",
-        packagename: "ethchain-geth.public.dappnode.eth",
-        name: "My Ethereum node (geth based - Websocket)",
-        hostname: "my.ethchain-geth.public.dappnode.eth",
-        ports: [8546],
-        description: "You will share the Ethereum WS RPC endpoint of your AVADO node for others to use. Your node will serve as an endpoint to add transactions to the blockchain - or query blockchain data"
-    },
-    {
-        key: "bitcoin_rpc",
-        packagename: "bitcoin.dnp.dappnode.eth",
-        name: "My Bitcoin node",
-        hostname: "my.bitcoin.dnp.dappnode.eth",
-        ports: [8333],
-        description: "You will share the Bitcoin RPC endpoint of your AVADO node for others to use. Your node will serve as an endpoint to add transactions to the blockchain - or query blockchain data"
-    },
-    {
-        key: "ethchain_parity",
-        packagename: "ethchain.dnp.dappnode.eth",
-        name: "My Ethereum node (Parity based)",
-        ports: [8545],
-        hostname: "my.ethchain.dnp.dappnode.eth",
-        description: "You will share the Ethereum RPC endpoint of your AVADO node for others to use. Your node will serve as an endpoint to add transactions to the blockchain - or query blockchain data"
-    },
-    {
-        key: "ipfs_gateway",
-        packagename: "ipfs.dnp.dappnode.eth",
-        name: "My IPFS node gateway",
-        description: "You will share your IPFS gateway - allowing other to get IPFS data through your node",
-        hostname: "my.ipfs.dnp.dappnode.eth",
-        ports: [8080]
-    }
-    ,
-    {
-        key: "ipfs_api",
-        packagename: "ipfs.dnp.dappnode.eth",
-        name: "My IPFS node gateway API",
-        description: "You will share your IPFS API - allowing other to add new IPFS data through your node and pin content on your node",
-        hostname: "my.ipfs.dnp.dappnode.eth",
-        ports: [5001]
-    },
-    {
-        key: "rinkeby",
-        packagename: "rinkeby.dnp.dappnode.eth",
-        name: "Rinkeby testnet",
-        description: "You will share your Geth Rinkeby testnet node",
-        hostname: "my.rinkeby.dnp.dappnode.eth",
-        frontendports: [9000],
-        ports: [8545]
-    },
-    {
-        key: "kovan",
-        packagename: "kovan.dnp.dappnode.eth",
-        name: "kovan testnet",
-        description: "You will share your kovan testnet node",
-        hostname: "my.kovan.dnp.dappnode.eth",
-        frontendports: [9001],
-        ports: [8545]
-    },
-];
-
 
 const Comp = () => {
 
@@ -155,8 +80,6 @@ const Comp = () => {
             }, 1000 * 2);
         }
     }, [pollDocker]);
-
-
 
     React.useEffect(() => {
         if (currentConfig && currentConfig.registration && currentConfig.registration.config) {
