@@ -2,8 +2,8 @@
   "name": "ryo-client.avado.dnp.dappnode.eth",
   "version": "0.0.9",
   "description": "AVADO RYO client",
-  "avatar": "QmPDExSFA2rsaqTMcYpaxLJZvG4TM7BZzVqJoMpBEXyVQx",
-  "type": "",
+  "avatar": "/ipfs/QmbHLhsPS17kRgCB5Xb7GE2oY5Dg4HrGCjbdUnB5EREfMp",
+  "type": "service",
   "image": {
     "volumes": [
       "zt-data:/zt-data",
@@ -16,13 +16,13 @@
       "1936:1936/tcp"
     ],
     "restart": "always",
-    "privileged": "true",
+    "privileged": true,
     "path": "ryo-client.avado.dnp.dappnode.eth_0.0.9.tar.xz",
-    "hash": "/ipfs/QmUA7JVpNi8XFHcDnNxVqdBxwZxPMpdXCFGyGUJYtNiwth",
-    "size": 97612398
+    "hash": "/ipfs/QmWZuXnXMNuVNidUWjody6mkoovNDwfj5pgK7TFv9zcdyp",
+    "size": 97901540
   },
   "author": "sponnet",
-  "license": "",
+  "license": "(c)",
   "links": {
     "OnboardingWizard": "http://my.ryo-client.avado.dnp.dappnode.eth:81"
   }

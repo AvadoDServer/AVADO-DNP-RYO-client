@@ -8,28 +8,32 @@ echo "Starting haproxy"
 
 echo "Starting ZeroTier daemon"
 
-ls -lR /dev/net/tun
+# clean up..
+rm /zt-data/authtoken.secret_
+mkdir -p /data/acloud/config
 
-#zerotier-one
-supervisord -c /etc/supervisord.conf
+# Show that there is a TUN device available
+ls -lR /dev/net/tun
 
 FILE=/zt-data/authtoken.secret
 while [ ! -f $FILE ]
 do
     echo "waiting for zeroTier to start up ($FILE)"
- 
     sleep 2
 done
 
+echo "Found ZT secret"
 cp $FILE /zt-data/authtoken.secret_
 chmod 644 /zt-data/authtoken.secret_
 
 ls -l /zt-data
 
-mkdir -p /data/acloud/config
 
-node /usr/dcloudmonitor/index.js "/data/acloud/config" /etc/haproxy/newconfig /zt-data/authtoken.secret_ &
+echo "Starting supervisord daemon"
+#start supervisord
+supervisord -c /etc/supervisord.conf
 
+echo "Start scanning HAProxy config..."
 while :
 do
     FILE=/etc/haproxy/newconfig
