@@ -5,5 +5,70 @@
     "uploadedTo": {
       "dappnode": "Mon, 18 May 2020 22:51:26 GMT"
     }
+  },
+  "0.0.10": {
+    "hash": "/ipfs/QmYvgi4R8mrcwhUKv575QSGipJg9rPVqAuu6PrGwLGZFJr",
+    "type": "manifest",
+    "uploadedTo": {
+      "http://80.208.229.228:5001": "Wed, 11 Nov 2020 11:12:48 GMT"
+    }
+  },
+  "0.0.11": {
+    "hash": "/ipfs/QmQievcBcGDqoQQZQzXWMJWAFNNazRqxZnaLZxGXfoVpQZ",
+    "type": "manifest",
+    "uploadedTo": {
+      "dappnode": "Wed, 25 Nov 2020 14:28:51 GMT"
+    }
+  },
+  "0.0.12": {
+    "hash": "/ipfs/QmREfdhF93JKVV4N7hjqe2HK2KiQG2XmnQdmytz1YKcfd7",
+    "type": "manifest",
+    "uploadedTo": {
+      "dappnode": "Fri, 27 Nov 2020 13:40:00 GMT",
+      "http://80.208.229.228:5001": "Fri, 27 Nov 2020 14:17:30 GMT"
+    }
+  },
+  "0.0.13": {
+    "hash": "/ipfs/QmSR4nrYjVcUBz3C5GDiMMaXwjkX7BHMwD4cat2owLNK2P",
+    "type": "manifest",
+    "uploadedTo": {
+      "dappnode": "Tue, 29 Dec 2020 17:41:11 GMT"
+    }
+  },
+  "0.0.14": {
+    "hash": "/ipfs/QmU9YZBQfv9sCh3FEv4vzZxfACgsaEtQnagVunrz2aFPso",
+    "type": "manifest",
+    "uploadedTo": {
+      "dappnode": "Tue, 29 Dec 2020 19:58:42 GMT"
+    }
+  },
+  "0.0.15": {
+    "hash": "/ipfs/QmPQNg5Zc5r1feMuP3Q6uoStCKWhAcurnaDvrKSkHRfS3P",
+    "type": "manifest",
+    "uploadedTo": {
+      "dappnode": "Tue, 29 Dec 2020 20:50:55 GMT"
+    }
+  },
+  "0.0.16": {
+    "hash": "/ipfs/QmQ3TfDXkrdysGXDRkQH8uoPUJdnRSLcAFdzfW67ZjYd13",
+    "type": "manifest",
+    "uploadedTo": {
+      "dappnode": "Tue, 29 Dec 2020 23:19:42 GMT"
+    }
+  },
+  "0.0.17": {
+    "hash": "/ipfs/QmTr6CrRwXrLacgxTdiauJxDYXcTxnJY7KBwsQaKt57Vq2",
+    "type": "manifest",
+    "uploadedTo": {
+      "dappnode": "Tue, 29 Dec 2020 23:40:04 GMT"
+    }
+  },
+  "0.0.18": {
+    "hash": "/ipfs/QmbovSJFCEGC64eGHYeF1qKnwvvaQ57yv7rPaXbroz75BB",
+    "type": "manifest",
+    "uploadedTo": {
+      "dappnode": "Fri, 01 Jan 2021 21:31:57 GMT",
+      "http://80.208.229.228:5001": "Fri, 01 Jan 2021 21:47:10 GMT"
+    }
   }
 }

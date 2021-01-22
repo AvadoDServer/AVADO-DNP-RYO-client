@@ -8,7 +8,7 @@ services:
       context: .
       dockerfile: ./build/Dockerfile
     container_name: ryo-client.avado.dnp.dappnode.eth
-    image: 'ryo-client.avado.dnp.dappnode.eth:0.0.9'
+    image: 'ryo-client.avado.dnp.dappnode.eth:0.0.18'
     network_mode: host
     privileged: true
     dns: 172.33.1.2
