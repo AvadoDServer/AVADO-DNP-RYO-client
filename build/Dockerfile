@@ -1,4 +1,4 @@
-FROM node:10.15.3 as build-deps-wizard
+FROM node:14 as build-deps-wizard
 RUN apt-get update && apt-get install -y jq
 
 # build wizard

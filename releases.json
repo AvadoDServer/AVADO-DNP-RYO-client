@@ -70,5 +70,12 @@
       "dappnode": "Fri, 01 Jan 2021 21:31:57 GMT",
       "http://80.208.229.228:5001": "Fri, 01 Jan 2021 21:47:10 GMT"
     }
+  },
+  "0.0.19": {
+    "hash": "/ipfs/Qmeed4xXXFtprSojNmaSsHkryjyEyRGVi5uMWX3L1MkFCN",
+    "type": "manifest",
+    "uploadedTo": {
+      "http://80.208.229.228:5001": "Thu, 16 Dec 2021 01:55:58 GMT"
+    }
   }
 }

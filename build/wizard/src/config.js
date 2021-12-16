@@ -2,11 +2,11 @@ const configs = {
     development: {
         name: 'dev',
         dcloudmonitor: {
-            URL: 'http://my.ryo-client.avado.dnp.dappnode.eth:82',
+            URL: 'http://ryo-client.my.ava.do:82',
         },
         packageName: "ryo-client.avado.dnp.dappnode.eth",
         autobahn: {
-            url: "ws://my.wamp.dnp.dappnode.eth:8080/ws",
+            url: "ws://wamp.my.ava.do:8080/ws",
             realm: "dappnode_admin",
         }
     }
@@ -15,11 +15,11 @@ const configs = {
     production: {
         name: 'prod',
         dcloudmonitor: {
-            URL: 'http://my.ryo-client.avado.dnp.dappnode.eth:82',
+            URL: 'http://ryo-client.my.ava.do:82',
         },
         packageName: "ryo-client.avado.dnp.dappnode.eth",
         autobahn: {
-            url: "ws://my.wamp.dnp.dappnode.eth:8080/ws",
+            url: "ws://wamp.my.ava.do:8080/ws",
             realm: "dappnode_admin",
         }
     },

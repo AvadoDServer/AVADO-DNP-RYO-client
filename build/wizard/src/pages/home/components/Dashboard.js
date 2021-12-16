@@ -8,7 +8,7 @@ import spinnerSVG from "../../../assets/spinner.svg";
 import config from "../../../config";
 import "./Dashboard.css"
 
-const url = "ws://my.wamp.dnp.dappnode.eth:8080/ws";
+const url = "ws://wamp.my.ava.do:8080/ws";
 const realm = "dappnode_admin";
 
 const Comp = () => {
@@ -297,7 +297,7 @@ const Comp = () => {
                                                             }
 
                                                             if (active) {
-
+debugger
                                                                 // fetch status
                                                                 const remoteStatus = currentConfig.acloudstatus.find((group) => {
 

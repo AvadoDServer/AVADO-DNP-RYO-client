@@ -101,7 +101,8 @@ const start = async () => {
         origins: [
             /^http:\/\/localhost(:[\d]+)?$/,
             "http://*.dappnode.eth:81",
-            "http://my.ryo-client.avado.dnp.dappnode.eth:81"
+            "http://my.ryo-client.avado.dnp.dappnode.eth:81",
+            "http://ryo-client.my.ava.do:81",
         ]
     });
 
