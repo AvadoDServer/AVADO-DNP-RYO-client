@@ -1,9 +1,11 @@
 {
   "name": "ryo-client.avado.dnp.dappnode.eth",
-  "version": "0.0.9",
+  "version": "0.0.19",
   "description": "AVADO RYO client",
-  "avatar": "/ipfs/QmPDExSFA2rsaqTMcYpaxLJZvG4TM7BZzVqJoMpBEXyVQx",
+  "avatar": "/ipfs/QmbHLhsPS17kRgCB5Xb7GE2oY5Dg4HrGCjbdUnB5EREfMp",
   "type": "service",
+  "autoupdate": true,
+  "title": "RYO client (sharing nodes and services)",
   "image": {
     "volumes": [
       "zt-data:/zt-data",
@@ -17,13 +19,14 @@
     ],
     "restart": "always",
     "privileged": true,
-    "path": "ryo-client.avado.dnp.dappnode.eth_0.0.9.tar.xz",
-    "hash": "/ipfs/QmUA7JVpNi8XFHcDnNxVqdBxwZxPMpdXCFGyGUJYtNiwth",
-    "size": 97612398
+    "path": "ryo-client.avado.dnp.dappnode.eth_0.0.19.tar.xz",
+    "hash": "/ipfs/QmPTKzA51DwRpgqkXY9CwCV2wKtU9Fcb7k8gJsPkv78Aam",
+    "size": 100698568
   },
   "author": "sponnet",
-  "license": "(C)",
+  "license": "(c)",
   "links": {
-    "OnboardingWizard": "http://my.ryo-client.avado.dnp.dappnode.eth:81"
-  }
+    "OnboardingWizard": "http://ryo-client.my.ava.do:81"
+  },
+  "builddate": "2021-12-16T01:55:57.252Z"
 }

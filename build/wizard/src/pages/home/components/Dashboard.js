@@ -1,97 +1,22 @@
 import React from "react";
-// import { Redirect } from "react-router-dom";
-// import styled from "styled-components";
 import autobahn from "autobahn-browser";
-import QrReader from 'react-qr-reader'
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { listPackages } from "../../../util/avado";
 import classNames from "classnames";
 import axios from "axios";
-import spinner from "../../../assets/spinner.svg";
+import spinnerSVG from "../../../assets/spinner.svg";
+import config from "../../../config";
+import "./Dashboard.css"
 
-const url = "ws://my.wamp.dnp.dappnode.eth:8080/ws";
+const url = "ws://wamp.my.ava.do:8080/ws";
 const realm = "dappnode_admin";
-const packageName = "ryo-client.avado.dnp.dappnode.eth";
-const dcloudmonitorAPI = "http://my.ryo-client.avado.dnp.dappnode.eth:82";
-//const dcloudmonitorAPI = "http://localhost:82";
-
-const packagewhitelist_ = [
-    {
-        key: "ethchain_geth",
-        packagename: "ethchain-geth.public.dappnode.eth",
-        name: "My Ethereum node (geth based)",
-        hostname: "my.ethchain-geth.public.dappnode.eth",
-        ports: [8545],
-        description: "You will share the Ethereum RPC endpoint of your AVADO node for others to use. Your node will serve as an endpoint to add transactions to the blockchain - or query blockchain data"
-    },
-    {
-        key: "ethchain_geth_ws",
-        packagename: "ethchain-geth.public.dappnode.eth",
-        name: "My Ethereum node (geth based - Websocket)",
-        hostname: "my.ethchain-geth.public.dappnode.eth",
-        ports: [8546],
-        description: "You will share the Ethereum WS RPC endpoint of your AVADO node for others to use. Your node will serve as an endpoint to add transactions to the blockchain - or query blockchain data"
-    },
-    {
-        key: "bitcoin_rpc",
-        packagename: "bitcoin.dnp.dappnode.eth",
-        name: "My Bitcoin node",
-        hostname: "my.bitcoin.dnp.dappnode.eth",
-        ports: [8333],
-        description: "You will share the Bitcoin RPC endpoint of your AVADO node for others to use. Your node will serve as an endpoint to add transactions to the blockchain - or query blockchain data"
-    },
-    {
-        key: "ethchain_parity",
-        packagename: "ethchain.dnp.dappnode.eth",
-        name: "My Ethereum node (Parity based)",
-        ports: [8545],
-        hostname: "my.ethchain.dnp.dappnode.eth",
-        description: "You will share the Ethereum RPC endpoint of your AVADO node for others to use. Your node will serve as an endpoint to add transactions to the blockchain - or query blockchain data"
-    },
-    {
-        key: "ipfs_gateway",
-        packagename: "ipfs.dnp.dappnode.eth",
-        name: "My IPFS node gateway",
-        description: "You will share your IPFS gateway - allowing other to get IPFS data through your node",
-        hostname: "my.ipfs.dnp.dappnode.eth",
-        ports: [8080]
-    }
-    ,
-    {
-        key: "ipfs_api",
-        packagename: "ipfs.dnp.dappnode.eth",
-        name: "My IPFS node gateway API",
-        description: "You will share your IPFS API - allowing other to add new IPFS data through your node and pin content on your node",
-        hostname: "my.ipfs.dnp.dappnode.eth",
-        ports: [5001]
-    },
-    {
-        key: "rinkeby",
-        packagename: "rinkeby.dnp.dappnode.eth",
-        name: "Rinkeby testnet",
-        description: "You will share your Geth Rinkeby testnet node",
-        hostname: "my.rinkeby.dnp.dappnode.eth",
-        frontendports: [9000],
-        ports: [8545]
-    },
-    {
-        key: "kovan",
-        packagename: "kovan.dnp.dappnode.eth",
-        name: "kovan testnet",
-        description: "You will share your kovan testnet node",
-        hostname: "my.kovan.dnp.dappnode.eth",
-        frontendports: [9001],
-        ports: [8545]
-    },
-];
-
 
 const Comp = () => {
 
     const [wsSession, setWsSession] = React.useState();
     const [showSpinner, setShowSpinner] = React.useState(false);
     const [packages, setPackages] = React.useState();
-    const [pollDocker, setPollDocker] = React.useState(false);
+    const [pollStatus, setPollStatus] = React.useState(false);
     const [currentConfig, setCurrentConfig] = React.useState(undefined);
     const [currentView, setCurrentView] = React.useState("view");
     const [initialFormValues, setInitialFormValues] = React.useState({});
@@ -114,7 +39,7 @@ const Comp = () => {
                     return p[key].name;
                 });
 
-                axios.get(`${dcloudmonitorAPI}/pool`).then((res) => {
+                axios.get(`${config.dcloudmonitor.URL}/pool`).then((res) => {
                     if (res && res.data) {
                         const packagewhitelist = res.data;
                         const whiteListedPackages = packagewhitelist.reduce((accum, item, i) => {
@@ -123,8 +48,6 @@ const Comp = () => {
                             }
                             return accum;
                         }, []);
-
-
                         setPackages(whiteListedPackages);
                     }
                 });
@@ -145,30 +68,37 @@ const Comp = () => {
     }, []);
 
     React.useEffect(() => {
-        if (pollDocker) {
+        if (pollStatus) {
             const interval = setInterval(() => {
                 getStatus().then((result) => {
-                    setPollDocker(false);
+                    setPollStatus(false);
                     setShowSpinner(false);
                     clearInterval(interval);
                 });
             }, 1000 * 2);
         }
-    }, [pollDocker]);
-
-
+    }, [pollStatus]);
 
     React.useEffect(() => {
         if (currentConfig && currentConfig.registration && currentConfig.registration.config) {
+
+            const allServices = packages && packages.reduce((accum, item) => {
+                accum[item.key] = false;
+                return accum;
+            }, {})
+
             const enabledServices = currentConfig.registration.config.sharedservices.reduce((accum, service) => { accum[service.key] = true; return accum; }, {})
+
             const initialValues =
             {
                 // agreetandc: currentConfig.registration.config.agreetandc || false,
                 rewardpubkey: currentConfig.registration.config.rewardpubkey || "",
                 nftpubkey: currentConfig.registration.config.nftpubkey || "",
                 publicname: currentConfig.registration.config.publicname || "",
+                ...allServices,
                 ...enabledServices
             }
+
             setInitialFormValues(initialValues);
             setCurrentView("view");
         }
@@ -195,7 +125,7 @@ const Comp = () => {
         setShowSpinner(true);
         return new Promise((resolve, reject) => {
             console.log("Polling status from container");
-            axios.get(`${dcloudmonitorAPI}/status`).then((res) => {
+            axios.get(`${config.dcloudmonitor.URL}/status`).then((res) => {
                 if (res && res.data) {
                     // console.log(res.data);
                     setCurrentConfig(res.data);
@@ -206,24 +136,22 @@ const Comp = () => {
         });
     };
 
-    const saveConfig = (config) => {
-
+    const saveConfig = (configJSON) => {
         if (wsSession) {
             // var dataUri = "data:text/plain;base64," + btoa(JSON.stringify(values));
-            var dataUri = "data:text/plain;base64," + btoa(JSON.stringify(config));
+            var dataUri = "data:text/plain;base64," + btoa(JSON.stringify(configJSON));
 
             const fileTx =
             {
                 dataUri: dataUri,
                 filename: "reload",
-                id: packageName,
+                id: config.packageName,
                 toPath: "/data/acloud/config/registration.json"
             };
-
             setShowSpinner(true);
 
             wsSession && wsSession.call("copyFileTo.dappmanager.dnp.dappnode.eth", [], fileTx).then(res => {
-                setPollDocker(true);
+                setPollStatus(true);
                 setCurrentView("view");
             });
         }
@@ -231,6 +159,7 @@ const Comp = () => {
 
     const processConfig = values => {
         return new Promise((resolve, reject) => {
+
             const sharedservices = packages ? packages.reduce((accum, item) => {
                 if (values[item.key]) {
                     accum.push({
@@ -246,7 +175,6 @@ const Comp = () => {
             // send config to container
             saveConfig({
                 sharedservices: sharedservices,
-                // agreetandc: values.agreetandc,
                 rewardpubkey: values.rewardpubkey,
                 nftpubkey: values.nftpubkey,
                 publicname: values.publicname
@@ -283,6 +211,16 @@ const Comp = () => {
         );
     };
 
+    const spinner = () => {
+        return (
+
+            <div className="column is-8-desktop is-10 is-offset-1  has-text-centered">
+                <p className="is-size-5 has-text-weight-bold">Loading</p>
+                <div className="spacer"></div>
+                <img alt="spinner" src={spinnerSVG} />
+            </div>
+        )
+    };
 
     if (showSpinner) {
         return (
@@ -290,16 +228,12 @@ const Comp = () => {
                 <div className="">
                     <div className="container">
                         <div className="columns is-mobile">
-                            <div className="column is-8-desktop is-10 is-offset-1  has-text-centered">
-                                <p className="is-size-5 has-text-weight-bold">Loading</p>
-                                <div className="spacer"></div>
-                                <img alt="spinner" src={spinner} />
-                            </div>
+                            {spinner()}
                         </div>
                     </div>
                 </div>
             </section>
-        );
+        )
     }
 
 
@@ -308,7 +242,7 @@ const Comp = () => {
         if (currentConfig && currentConfig.registration && currentConfig.registration.config && currentConfig.registration.config) {
             return (
                 <>
-                    <section className="is-medium has-text-white">
+                    <section className="dashboard is-medium has-text-white">
                         <div className="">
                             {/* <div className="container"> */}
                             <div className="columns is-mobile">
@@ -349,20 +283,60 @@ const Comp = () => {
                                                         <div>Node public name <b>{currentConfig.registration.config.publicname}</b></div>
                                                     </>
                                                 )}
-                                                <h4 className="title is-4 has-text-white">Services you are sharing in this network</h4>
+                                                <br />
+                                                <h4 className="title is-4 has-text-white">Services you are sharing in the RYO cloud</h4>
+                                                <table>
+                                                    <tbody>
+                                                        {packages ? packages.reduce((accum, service, i) => {
+                                                            const active = currentConfig.registration.config.sharedservices.find((configItem) => {
+                                                                return configItem.key === service.key
+                                                            })
 
-                                                {packages && packages.map((service, i) => {
-                                                    const active = currentConfig.registration.config.sharedservices.find((configItem) => {
-                                                        return configItem.key === service.key
-                                                    })
-                                                    if (!active) {
-                                                        return (<span key={i}></span>);
-                                                    }
-                                                    return (
-                                                        <div key={i}>{service.name} {service.ports && service.ports.length > 0 && (<>on port {service.ports.map((p) => { return (p) })}</>)}</div>
-                                                    );
-                                                })}
+                                                            if (service.key === "ipfs_pinner") {
+                                                                return accum;
+                                                            }
 
+                                                            if (active) {
+debugger
+                                                                // fetch status
+                                                                const remoteStatus = currentConfig.acloudstatus.find((group) => {
+
+                                                                    return group.servicegroup === service.key ||
+                                                                        (group.servicegroup === "eth_rpc_pool" &&
+                                                                            ["ethchain_geth", "ethchain_parity", "ethchain_nethermind"].includes(service.key))
+                                                                }) || {
+                                                                    status: 0, info: {
+                                                                        error: "no registration found in RYO cloud"
+                                                                    }
+                                                                };
+
+                                                                accum.push(
+                                                                    <tr key={i}>
+                                                                        <td>
+                                                                            {service.name} {service.ports && service.ports.length > 0 && (<>on port {service.ports.map((p, i) => { return (<span key={`port_${i}`}>{p}&nbsp;</span>) })}</>)}
+                                                                        </td>
+                                                                        <td className="has-text-centered">
+                                                                            {remoteStatus.status === 2 ? (
+                                                                                <span className="is-fullwidth tag is-success">Online</span>
+                                                                            ) : (
+                                                                                    <>
+                                                                                        <span className="is-fullwidth tag is-warning">Error</span>
+                                                                                    </>
+                                                                                )}
+                                                                        </td>
+                                                                        <td>{remoteStatus.info && remoteStatus.info.error}</td>
+
+                                                                        <td>
+                                                                        </td>
+                                                                    </tr>
+                                                                );
+                                                            }
+                                                            return accum;
+                                                        }, []) : (
+                                                                <tr><td>{spinner()}</td></tr>
+                                                            )}
+                                                    </tbody>
+                                                </table>
                                                 <br />
                                                 <h4 className="title is-4 has-text-white">Rewards</h4>
                                                 <div>Rewards paid to <b>{currentConfig.registration.config.rewardpubkey}</b></div>
@@ -481,16 +455,18 @@ const Comp = () => {
 
                                                                 <table className="table is-fullwidth">
                                                                     <thead>
-                                                                        <th>shared</th>
-                                                                        <th>Service Name</th>
-                                                                        <th>Description</th>
+                                                                        <tr>
+                                                                            <td>shared</td>
+                                                                            <td>Service Name</td>
+                                                                            <td>Description</td>
+                                                                        </tr>
                                                                     </thead>
                                                                     <tbody>
 
 
                                                                         {Object.keys(packages).map((key, i) => {
                                                                             return (
-                                                                                <tr>
+                                                                                <tr key={`service_${i}`}>
                                                                                     <td><div className="level-left">
                                                                                         <div className="field">
                                                                                             <Field
