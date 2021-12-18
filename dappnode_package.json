@@ -20,13 +20,13 @@
     "restart": "always",
     "privileged": true,
     "path": "ryo-client.avado.dnp.dappnode.eth_0.0.19.tar.xz",
-    "hash": "/ipfs/QmPTKzA51DwRpgqkXY9CwCV2wKtU9Fcb7k8gJsPkv78Aam",
-    "size": 100698568
+    "hash": "/ipfs/QmUKcDJE5yZraxp8D29YnfyT9cqNDDnufbZPP56MrXYRVh",
+    "size": 102188348
   },
   "author": "sponnet",
   "license": "(c)",
   "links": {
     "OnboardingWizard": "http://ryo-client.my.ava.do:81"
   },
-  "builddate": "2021-12-16T01:55:57.252Z"
+  "builddate": "2021-12-18T14:00:20.043Z"
 }
